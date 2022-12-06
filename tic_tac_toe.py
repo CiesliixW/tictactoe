@@ -1,3 +1,5 @@
+import os
+
 def init_board():
     """Returns an empty height by width board (with .)."""
     board = []
@@ -13,37 +15,40 @@ def get_move(board):
     while True:
         possible_rows = ["A","B","C"]
         possible_columns = ["1","2","3"]
-        player_move = input("Type your coordinates (eg. A1\B2 ect): ")
+        player_move = input("Type your coordinates (eg. A1\B2 ect): ").capitalize()
         player_move_into_list = list(player_move)
         player_move_length = len(player_move_into_list)
-        if player_move_into_list[0] in possible_rows and player_move_into_list[1] in possible_columns and player_move_length == 2:
-            coordinates = (player_move_into_list[0],player_move_into_list[1])
-            if coordinates[0] == "A":
-                if board[0][int(coordinates[1])-1] !=".":
-                    print("Place already taken")
-                    continue
-                else:
-                    coordinates = (1,int(player_move_into_list[1]))
-                    print(f'The coordinates are: {coordinates}')
-                    return coordinates
-            elif coordinates[0] == "B":
-                if board[1][int(coordinates[1])-1] !=".":
-                    print("Place already taken")
-                    continue
-                else: 
-                    coordinates = (2,int(player_move_into_list[1]))
-                    print(f'The coordinates are: {coordinates}')
-                    return coordinates
-            else:
-                if board[2][int(coordinates[1])-1] !=".":
+        if player_move_length == 2:
+            if player_move_into_list[0] in possible_rows and player_move_into_list[1] in possible_columns:
+                coordinates = (player_move_into_list[0],player_move_into_list[1])
+                if coordinates[0] == "A":
+                    if board[0][int(coordinates[1])-1] !=".":
                         print("Place already taken")
                         continue
+                    else:
+                        coordinates = (1,int(player_move_into_list[1]))
+                        print(f'The coordinates are: {coordinates}')
+                        return coordinates
+                elif coordinates[0] == "B":
+                    if board[1][int(coordinates[1])-1] !=".":
+                        print("Place already taken")
+                        continue
+                    else: 
+                        coordinates = (2,int(player_move_into_list[1]))
+                        print(f'The coordinates are: {coordinates}')
+                        return coordinates
                 else:
-                    coordinates = (3,int(player_move_into_list[1]))
-                    print(f'The coordinates are: {coordinates}')
-                    return coordinates      
+                    if board[2][int(coordinates[1])-1] !=".":
+                            print("Place already taken")
+                            continue
+                    else:
+                        coordinates = (3,int(player_move_into_list[1]))
+                        print(f'The coordinates are: {coordinates}')
+                        return coordinates  
+            else:
+                print("Provide valid coordinates!")
         else:
-            print("Provide valid coordinates!")
+            print("Provide valid coordinates! (eg. A1\B2 ect):")
 
 
 
@@ -144,40 +149,39 @@ def tictactoe_game():
     has_won_O = False
     is_fulls = False
 
-    # use get_move(), mark(), has_won(), is_full(), and print_board() to create game logic
     while has_won_X == False and is_fulls == False and has_won_O == False: 
+        os.system("cls || clear")
         print_board(board)
+        print("\nTURN: X\n")
         X_move = get_move(board)
         board = mark(board, "X", X_move[0], X_move[1])
         has_won_X = has_won(board, "X")
         if has_won_X == True: 
+            os.system("cls || clear")
+            print_board(board)
             print_result("X")
             return
         is_fulls = is_full(board)
+        if is_fulls == True: 
+            break
+        os.system("cls || clear")
         print_board(board)
+        print("\nTURN: O\n")
         O_move = get_move(board)
         board = mark(board, "O", O_move[0], O_move[1])
         has_won_O = has_won(board, "O")
         if has_won_O == True:
+            os.system("cls || clear")
+            print_board(board)
             print_result("O")
             return
         is_fulls = is_full(board)
+        if is_fulls == True: 
+            break
+    os.system("cls || clear")
+    print_board(board)       
     print_result(0)
 
-
-        
-
-
-
-
-
-
-
-    # row, col = get_move(board, 1)
-    # mark(board, 1, row, col)
-
-    # winner = 0
-    # print_result(winner)
 
 
 def main_menu():
