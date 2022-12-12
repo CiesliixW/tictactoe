@@ -1,4 +1,6 @@
 import os
+import random
+
 
 def init_board():
     """Returns an empty height by width board (with .)."""
@@ -47,16 +49,123 @@ def get_move(board):
                         return coordinates  
             else:
                 print("Provide valid coordinates!")
+        
+        elif player_move == "Quit":
+            os.system("cls || clear")
+            exit()
         else:
             print("Provide valid coordinates! (eg. A1\B2 ect):")
+        
 
 
 
-def get_ai_move(board, player):
+def get_ai_move(board,human_player,difficulty):
     """Returns the coordinates of a valid move for player on board."""
-    row, col = 0, 0
-    return row, col
+    if difficulty == "easy":
+        for i, row in enumerate(board): 
+                for j, place in enumerate(row): 
+                    if place == ".":
+                        possible_row = i + 1 
+                        possible_col = j + 1 
+                        ai_move = (possible_row, possible_col)
+                        return ai_move
+    elif difficulty == "medium":
+        while True: 
+            random_col = random.randint(1,3)
+            random_row = random.randint(1,3)
+            if board[random_row-1][random_col-1] == ".":
+                ai_move = (random_row, random_col)
+                return ai_move
+            else:
+                continue
 
+    elif difficulty == "hard":
+        winning_positions = [
+        [(1,1),(2,1),(3,1)],
+        [(1,2),(2,2),(3,2)],
+        [(1,3),(2,3),(3,3)],
+        [(1,1),(1,2),(1,3)],
+        [(2,1),(2,2),(2,3)],
+        [(3,1),(3,2),(3,3)],
+        [(1,1),(2,2),(3,3)],
+        [(3,1),(2,2),(1,3)],
+    ]
+        for position in winning_positions: 
+            if board[position[0][0]-1][position[0][1]-1] == human_player and board[position[1][0]-1][position[1][1]-1] == human_player and board[position[2][0]-1][position[2][1]-1] == ".":
+                print("option1")
+                ai_move = (position[2][0],position[2][1])
+                return ai_move
+            elif board[position[1][0]-1][position[1][1]-1] == human_player and board[position[2][0]-1][position[2][1]-1] == human_player and board[position[0][0]-1][position[0][1]-1] == ".":
+                ai_move = (position[0][0],position[0][1])
+                print("option4")
+                return ai_move  
+            elif board[position[0][0]-1][position[0][1]-1] == human_player and board[position[2][0]-1][position[2][1]-1] == human_player and board[position[1][0]-1][position[1][1]-1] == ".":
+                print("option3")
+                ai_move = (position[1][0],position[1][1])
+                return ai_move  
+            else: 
+                print("option4")
+                while True: 
+                    print("option5")
+                    random_col = random.randint(1,3)
+                    random_row = random.randint(1,3)
+                    if board[random_row-1][random_col-1] == ".":
+                        print("option6")
+                        ai_move = (random_row, random_col)
+                        return ai_move
+                    else:
+                        print("option7")
+                        continue
+    elif difficulty == "minimax":
+        bestScore = -1000
+        for i, row in enumerate(board): 
+            for j, place in enumerate(row): 
+                if place == ".":
+                    board[i][j] = "X"
+                    score = minimax(board,False)
+                    board[i][j] = "."
+                    if score > bestScore:
+                        bestScore = score
+                        ai_move = (i+1,j+1)
+        return ai_move
+
+    else:
+        print("ai difficulty not valid")
+        exit()
+
+
+    
+
+def minimax(board, isMaximizing):
+    if has_won(board, "X"):
+        return 1
+    elif has_won(board, "O"):
+        return -1
+    elif is_full(board): 
+        0
+    if isMaximizing:
+        bestScore = -1000
+        for i, row in enumerate(board):
+            for j, place in enumerate(row):
+                if board[i][j] == ".":
+                    board[i][j] = 'X'
+                    score = minimax(board, False)
+                    board[i][j] = '.'
+                    if score > bestScore:
+                        bestScore = score
+        return bestScore
+
+    else: 
+        bestScore = 1000
+        for i, row in enumerate(board):
+            for j, place in enumerate(row):
+                if board[i][j] == ".":
+                    board[i][j] = 'O'
+                    score = minimax(board, True)
+                    board[i][j] = "."
+                    if score < bestScore:
+                        bestScore = score
+        return bestScore
 
 def mark(board, player, row, col):
     """Marks the element at row & col on the board for player. Player == "X" or "O" """
@@ -143,42 +252,54 @@ def print_result(winner):
         
 
 
-def tictactoe_game():
+def tictactoe_game(mode="HUMAN-HUMAN"):
     board = init_board()
     has_won_X = False
     has_won_O = False
     is_fulls = False
 
     while has_won_X == False and is_fulls == False and has_won_O == False: 
-        os.system("cls || clear")
+        # os.system("cls || clear")
         print_board(board)
         print("\nTURN: X\n")
-        X_move = get_move(board)
+        if mode == "HUMAN-HUMAN" or mode == "HUMAN-AI":
+            X_move = get_move(board)
+        elif mode == "AI-HUMAN":
+            X_move = get_ai_move(board, "O","minimax")
+        else:
+            print("mode not valid")
+            return
         board = mark(board, "X", X_move[0], X_move[1])
         has_won_X = has_won(board, "X")
         if has_won_X == True: 
-            os.system("cls || clear")
+            # os.system("cls || clear")
             print_board(board)
             print_result("X")
             return
         is_fulls = is_full(board)
         if is_fulls == True: 
             break
-        os.system("cls || clear")
+        # os.system("cls || clear")
         print_board(board)
         print("\nTURN: O\n")
-        O_move = get_move(board)
+        if mode == "HUMAN-HUMAN" or mode == "AI-HUMAN":
+            O_move = get_move(board)
+        elif mode == "HUMAN-AI":
+            O_move = get_ai_move(board,"X","minimax")
+        else: 
+            print("mode not valid")
+            return
         board = mark(board, "O", O_move[0], O_move[1])
         has_won_O = has_won(board, "O")
         if has_won_O == True:
-            os.system("cls || clear")
+            # os.system("cls || clear")
             print_board(board)
             print_result("O")
             return
         is_fulls = is_full(board)
         if is_fulls == True: 
             break
-    os.system("cls || clear")
+    # os.system("cls || clear")
     print_board(board)       
     print_result(0)
 
@@ -189,4 +310,4 @@ def main_menu():
     pass
 
 if __name__ == '__main__':
-    tictactoe_game()
+    tictactoe_game('AI-HUMAN')
